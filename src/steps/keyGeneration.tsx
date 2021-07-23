@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useMemo, useState } from 'react';
 import { useSimulationContext } from '../context/simulationContext';
 import { Pulse } from '../sim/Pulse';
 
@@ -64,7 +64,9 @@ export default function KeyGeneration({}: Props): ReactElement {
                   </div>
                 ))}
               </div>
-              <span className='block text-center mt-1 text-sm'>Alice key</span>
+              <span className='block text-center mt-1 text-sm'>
+                Alice key ({bobKey.length} Bits)
+              </span>
             </div>
             <div>
               <div
@@ -76,7 +78,9 @@ export default function KeyGeneration({}: Props): ReactElement {
                   </div>
                 ))}
               </div>
-              <span className='block text-center mt-1 text-sm'>Bob Key</span>
+              <span className='block text-center mt-1 text-sm'>
+                Bob Key ({bobKey.length} Bits)
+              </span>
             </div>
           </div>
         )}

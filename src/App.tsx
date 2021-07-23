@@ -12,6 +12,7 @@ import ErrorDetection from './steps/errorDetection';
 import { useSimulationContext } from './context/simulationContext';
 import KeyGeneration from './steps/keyGeneration';
 import Model from './Model';
+import PhotonDetection from './steps/photonDetection';
 
 function App() {
   const {
@@ -100,13 +101,13 @@ function App() {
             emitPulses(pulses);
           }}
           className='p-3 bg-blue-500 text-white rounded hover:bg-blue-600 transition shadow-md'>
-          Emit 100 pulse
+          Emit 100 pulses
         </button>
-        <button
+        {/* <button
           onClick={() => setShowBobPhotonHitT(!showBobPhotonHitT)}
           className='p-3 bg-blue-500 text-white rounded hover:bg-blue-600 transition shadow-md'>
           show bob detected photon T
-        </button>
+        </button> */}
         {/* <button
           onClick={() => checkForErrors()}
           className='p-3 bg-blue-500 text-white rounded hover:bg-blue-600 transition shadow-md'>
@@ -114,10 +115,11 @@ function App() {
         </button> */}
       </div>
 
+      {/* Photon Emitted list */}
       <div className='flex justify-between flex-col bg-white'>
-        <div className='rounded shadow-md inline-block border border-gray-200'>
+        <div className='inline-block border border-black p-2 bg-white'>
           <div
-            className='overflow-y-auto inline-flex  scrollbar scrollbar-thumb-gray-400 scrollbar-thin scrollbar-track-gray-50 scrollbar-thumb-rounded-md'
+            className='overflow-y-auto inline-flex'
             style={{ width: '100%' }}>
             <table className='table-fixed w-full border-collapse '>
               {/* <thead></thead> */}
@@ -127,11 +129,14 @@ function App() {
                   <th className='w-40 p-2 border border-gray-300 border-solid'>
                     Time
                   </th>
-                  {aliceEmittedPulses?.slice(1).map(pulse => (
-                    <td className='w-14 p-2 border text-center border-gray-300 border-solid'>
-                      {pulse.quantumPart.time}
-                    </td>
-                  ))}
+                  {aliceEmittedPulses?.length > 1 &&
+                    aliceEmittedPulses
+                      ?.slice(1)
+                      .map(pulse => (
+                        <td className='w-14 p-2 border text-center border-gray-300 border-solid'>
+                          {pulse.quantumPart.time}
+                        </td>
+                      ))}
                 </tr>
                 <tr>
                   <th className='w-32 p-2 border border-gray-300 border-solid'>
@@ -140,7 +145,7 @@ function App() {
                   <th className='w-14 p-2 border border-gray-300 border-solid'>
                     Phase Difference
                   </th>
-                  {aliceEmittedPulses ? (
+                  {aliceEmittedPulses?.length > 1 ? (
                     aliceEmittedPulses
                       ?.slice(1)
                       .map(pulse => (
@@ -202,7 +207,7 @@ function App() {
           </div>
         </div>
       </div>
-
+      {/* 
       <div className='flex justify-between items-start'>
         {showAlicePhListOfGivenT ? (
           <div className='rounded shadow-md inline-block border border-gray-200 mt-5 bg-white'>
@@ -293,9 +298,17 @@ function App() {
         ) : (
           <div></div>
         )}
-      </div>
+      </div> */}
 
-      {showErrorSec && (
+      {bobDetedPulses &&
+        showSimSteps.photonsDetected.show &&
+        showSimSteps.photonsDetected.open && (
+          <div className='mt-3'>
+            <PhotonDetection />
+          </div>
+        )}
+
+      {showSimSteps.detectError.show && showSimSteps.detectError.open && (
         <div className='mt-3'>
           <ErrorDetection
             alicePulseList={aliceEmittedPulses!}

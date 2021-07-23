@@ -1,6 +1,6 @@
 import Icon from '@iconify/react';
 import clsx from 'clsx';
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useRef, useState } from 'react';
 import { Pulse } from '../sim/Pulse';
 import { compareBits, getSampleBits } from '../sim/Simulation';
 import equalIcon from '@iconify/icons-mdi/equal';
@@ -28,10 +28,11 @@ export default function ErrorDetection({
 
   // const [aliceSampleBits, setAliceSampleBits] = useState<Pulse[]>();
   // const [bobSampleBits, setBobSampleBits] = useState<Pulse[]>();
+  const [aliceTPulses] = useState<Pulse[]>(bobPulseList.filter(bp => !!bp));
   const [areBitsSame, setAreBitsSame] = useState(false);
 
   function getAliceSampleBits() {
-    const aliceBits = getSampleBits(bobPulseList.filter(bp => !!bp));
+    const aliceBits = getSampleBits(aliceTPulses);
     setAliceSamplePulses(aliceBits);
     setBobSharedSamplePulses(undefined);
     setAreBitsSame(undefined);
@@ -58,18 +59,18 @@ export default function ErrorDetection({
       <div className='flex items-baseline gap-x-3'>
         <h2 className='text-lg font-medium'>Error Detection</h2>
         <button
-          disabled={aliceSamplePulses?.length < 10}
+          disabled={aliceTPulses?.length < 10}
           onClick={() => getAliceSampleBits()}
           className={clsx(
             'p-2 px-3  text-white text-sm rounded  transition shadow-md',
-            aliceSamplePulses?.length < 10
+            aliceTPulses?.length < 10
               ? ' bg-gray-400 cursor-not-allowed'
               : ' bg-blue-500 hover:bg-blue-600'
           )}>
           Get Sample Bits
         </button>
 
-        {aliceSamplePulses?.length < 10 && (
+        {aliceTPulses?.length < 10 && (
           <span className='text-sm text-red-400'>
             Cannot generate sample bits from bit length {'<'} 10
           </span>

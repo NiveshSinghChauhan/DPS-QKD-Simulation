@@ -29,7 +29,7 @@ interface StepVisibility {
 }
 
 interface SimulationStepsVisibility {
-  emitPhotons: StepVisibility;
+  photonsDetected: StepVisibility;
   detectError: StepVisibility;
   generateKey: StepVisibility;
 }
@@ -59,11 +59,11 @@ export function SimulationContextProvider(
   // const [currentStep, setCurrentStep] = useState<SimulationStep>();
 
   const [showSimSteps, setShowSimSteps] = useState<SimulationStepsVisibility>({
-    detectError: {
-      open: false,
-      show: false,
+    photonsDetected: {
+      open: true,
+      show: true,
     },
-    emitPhotons: {
+    detectError: {
       open: false,
       show: false,
     },
