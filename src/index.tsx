@@ -3,11 +3,13 @@ import ReactDOM from 'react-dom';
 import './index.scss';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { SimulationContextProvider } from './context/simulationContext';
 
 ReactDOM.render(
-  <React.StrictMode>
+  <SimulationContextProvider>
     <App />
-  </React.StrictMode>,
+  </SimulationContextProvider>,
+
   document.getElementById('root')
 );
 
