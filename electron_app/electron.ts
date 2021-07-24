@@ -1,4 +1,5 @@
 import { app, BrowserWindow } from 'electron';
+import { join } from 'path';
 
 export function createWindow() {
   const window = new BrowserWindow({
@@ -6,7 +7,7 @@ export function createWindow() {
     height: 800,
   });
 
-  window.loadURL('http://localhost:3000');
+  window.loadFile(`build/index.html`);
 }
 
 app.whenReady().then(() => {

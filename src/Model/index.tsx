@@ -82,7 +82,7 @@ export default function Model(props: Props): ReactElement {
     scene.current.add(light);
 
     loader.current.load(
-      '/sim2.glb',
+      'sim2.glb',
       function (gltf) {
         console.log(gltf);
 

@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
-    "outDir": "./dist/electron",
-    "target": "es5",
+    "outDir": "./dist",
+    "target": "es2019",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "baseUrl": ".",
+    "pretty": true,
     "rootDir": "electron_app",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,

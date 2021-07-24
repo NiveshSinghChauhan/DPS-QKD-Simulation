@@ -29,10 +29,12 @@
   },
   "scripts": {
     "start": "craco start",
-    "build": "craco build",
+    "build": "rm ./build -rf && craco build",
     "test": "craco test",
-    "build:electron": "tsc -p electron.tsconfig.json",
+    "build:electron": "rm ./dist -rf && tsc -p electron.tsconfig.json",
     "start:electron": "electron ./dist/electron",
+    "dist": "electron-builder --dir",
+    "build:electron:dist": "npm run build && npm run build:electron && electron-builder --dir",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -58,10 +60,27 @@
     "@types/dat.gui": "^0.7.7",
     "@types/lodash": "^4.14.171",
     "@types/three": "^0.130.1",
+    "asar": "^3.0.3",
     "autoprefixer": "^9.8.6",
     "electron": "^13.1.7",
+    "electron-builder": "^22.10.5",
     "postcss": "^7.0.36",
+    "rimraf": "^3.0.2",
     "sass": "^1.35.2",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.2.4"
+  },
+  "main": "./dist/electron.js",
+  "homepage": "./",
+  "build": {
+    "appId": "com.qkdSim.app",
+    "productName": "QKD Simulation",
+    "directories": {
+      "output": "./electron_dist"
+    },
+    "files": [
+      "build/**/*",
+      "dist/electron.js"
+    ],
+    "extends": null
   }
 }
