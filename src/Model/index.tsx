@@ -52,6 +52,25 @@ export default function Model(props: Props): ReactElement {
 
   const photon = useRef<Object3D>();
 
+  const resiveListner = (e: UIEvent): void => {
+    // const canvas = renderer.current.domElement;
+    camera.current.aspect =
+      containerRef.current.clientWidth / containerRef.current.clientHeight;
+    camera.current.updateProjectionMatrix();
+    renderer.current.setSize(
+      containerRef.current.clientWidth,
+      containerRef.current.clientHeight
+    );
+  };
+
+  useEffect(() => {
+    window.addEventListener('resize', resiveListner);
+
+    return () => {
+      window.removeEventListener('resize', resiveListner);
+    };
+  }, []);
+
   useEffect(() => {
     scene.current.clear();
 
@@ -70,7 +89,8 @@ export default function Model(props: Props): ReactElement {
       0.1,
       1000
     );
-    camera.current.position.set(-1, 0, 7);
+    camera.current.position.set(-1, 2, 7);
+    camera.current.rotateX(-0.2)
 
     // Lights
     const ambient = new AmbientLight(0x404040, 0.8); // soft white light
@@ -82,7 +102,7 @@ export default function Model(props: Props): ReactElement {
     scene.current.add(light);
 
     loader.current.load(
-      'sim2.glb',
+      'lazer2.glb',
       function (gltf) {
         console.log(gltf);
 
