@@ -43,8 +43,8 @@ export function detectPulses(pulseList: Pulse[]) {
   return detectedPulseList;
 }
 
-export function getSampleBits(pulses: Pulse[]) {
-  const smapleBitPercentage = pulses.length * 0.2;
+export function getSampleBits(pulses: Pulse[], percent = 0.2) {
+  const smapleBitPercentage = pulses.length * percent ?? 0.2;
 
   const smapleBitLength =
     smapleBitPercentage < 1 ? 1 : toInteger(smapleBitPercentage);
@@ -65,10 +65,13 @@ export function compareBits(a: number[], b: number[]) {
 }
 
 export class Simulation {
-  private phaseDiffDetector = new PhaseDiffDetector();
-  private photonGenerator = new RandomPhotonGenerator(5);
+  private photonPerPulse = 5;
+  private pulseCount = 1000;
 
-  generatePulses(pulseCount = 1000) {
+  private phaseDiffDetector = new PhaseDiffDetector();
+  private photonGenerator = new RandomPhotonGenerator(this.photonPerPulse);
+
+  generatePulses(pulseCount = this.pulseCount) {
     this.reset();
     const pulseList: Pulse[] = [];
 
@@ -101,6 +104,15 @@ export class Simulation {
     );
 
     return pulse;
+  }
+
+  setPhotonPerPulse(photonNum: number) {
+    this.photonPerPulse = photonNum;
+    this.photonGenerator = new RandomPhotonGenerator(photonNum);
+  }
+
+  setPulseCount(count: number) {
+    this.pulseCount = count;
   }
 
   private reset() {

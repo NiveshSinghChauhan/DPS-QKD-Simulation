@@ -1,4 +1,10 @@
-import React, { ReactElement, useEffect, useRef, useState } from 'react';
+import React, {
+  ReactElement,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   AmbientLight,
   AnimationAction,
@@ -21,6 +27,7 @@ import {
 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import { RectAreaLightHelper } from 'three/examples/jsm/helpers/RectAreaLightHelper';
 import { GUI } from 'three/examples/jsm/libs/dat.gui.module';
 import { PhaseDiffDetector, PhaseDifference, Pulse } from 'src/sim/Pulse';
@@ -36,12 +43,12 @@ export default function Model(props: Props): ReactElement {
   // const controls = useRef(new OrbitControls());
   const containerRef = useRef<HTMLDivElement>();
   const scene = useRef(new Scene());
-  const loader = useRef(new GLTFLoader());
+  const loader = useRef(new FBXLoader());
   const camera = useRef<PerspectiveCamera>();
   const mixer = useRef<AnimationMixer>();
   const clock = useRef(new Clock());
   const renderer = useRef(new WebGLRenderer({ antialias: true, alpha: true }));
-  const gltfModel = useRef<GLTF>();
+  const gltfModel = useRef<any>();
   const animationActions = useRef<AnimationAction[]>([]);
 
   const detectors = useRef<{
@@ -62,6 +69,8 @@ export default function Model(props: Props): ReactElement {
       containerRef.current.clientHeight
     );
   };
+
+  const gui = useMemo(() => new GUI(), []);
 
   useEffect(() => {
     window.addEventListener('resize', resiveListner);
@@ -89,8 +98,14 @@ export default function Model(props: Props): ReactElement {
       0.1,
       1000
     );
-    camera.current.position.set(-1, 2, 7);
-    camera.current.rotateX(-0.2)
+    camera.current.position.set(-1, 3, 15);
+    // camera.current.rotateX(-0.2);
+    const cubeFolder = gui.addFolder('Rotation');
+    cubeFolder.add(camera.current.rotation, 'x', Math.PI * -2, Math.PI * 2);
+    const cameraFolder = gui.addFolder('Camera');
+    cameraFolder.add(camera.current.position, 'x', -30, 30);
+    cameraFolder.add(camera.current.position, 'y', -30, 30);
+    cameraFolder.open();
 
     // Lights
     const ambient = new AmbientLight(0x404040, 0.8); // soft white light
@@ -102,19 +117,20 @@ export default function Model(props: Props): ReactElement {
     scene.current.add(light);
 
     loader.current.load(
-      'lazer2.glb',
+      'Final_files.fbx',
       function (gltf) {
         console.log(gltf);
 
         gltfModel.current = gltf;
-        const model = gltf.scene;
-        model.children[2].visible = false;
+        const model = gltf;
+        // model.children[2].visible = false;
         const fileAnimations = gltf.animations;
-        // model.rotation.set(0, 4.5, 0);
-        scene.current.rotation.set(0.2, 4.7, 0);
+        // // model.rotation.set(0, 4.5, 0);
+        // scene.current.rotation.set(0.2, 4.7, 0);
 
         const led1 = model.getObjectByName('led1') as Mesh;
         const led2 = model.getObjectByName('led2') as Mesh;
+
         led1.material = (led1.material as MeshStandardMaterial).clone();
         led2.material = (led1.material as MeshStandardMaterial).clone();
 
@@ -136,7 +152,7 @@ export default function Model(props: Props): ReactElement {
           // action.paused = true;
         });
 
-        photon.current = model.children[15];
+        photon.current = model.children[40];
         scene.current.add(model);
       },
       undefined,
@@ -202,53 +218,131 @@ export default function Model(props: Props): ReactElement {
   return (
     <div className='border border-black bg-white'>
       <div ref={containerRef} style={{ height: '40vh' }}></div>
-      <div className='flex gap-x-2 items-center mt-3 p-2'>
-        {/* <button
-          // onClick={() => emit(new Pulse(new))}
-          className='p-2 bg-blue-600 text-white rounded'>
-          Run Photon Simulation
-        </button> */}
-
+      {/* <div className='flex gap-x-2 items-center mt-3 p-2'>
         {camera.current && (
-          <div className='flex flex-col gap-x-1'>
-            <label className='text-sm'>CameraPositionX</label>
-            <CameraPositionX
-              initValue={{ x: camera.current.position.x }}
-              onChange={pos => {
-                camera.current.position.x = pos.x;
-              }}
-            />
+          <div className='flex gap-x-3'>
+            <div className='flex flex-col gap-x-1'>
+              <label className='text-sm'>Camera Position</label>
+              <CameraPosition
+                initValue={{
+                  x: camera.current.position.x,
+                  y: camera.current.position.y,
+                }}
+                onChange={pos => {
+                  camera.current.position.y = pos.y;
+                  camera.current.position.x = pos.x;
+                }}
+              />
+            </div>
           </div>
         )}
-      </div>
+      </div> */}
     </div>
   );
 }
 
-function CameraPositionX(props: {
-  initValue: { x: number };
-  onChange: (value: { x: number }) => void;
+interface Axis {
+  x?: number;
+  y?: number;
+  z?: number;
+}
+
+function CameraRotate(props: {
+  initValue: Axis;
+  onChange: (value: Axis) => void;
 }): ReactElement {
-  const [cameraPosition, setCameraPosition] = useState<{ x: number }>(
-    props.initValue
-  );
+  const [cameraRotation, setCameraRotation] = useState<Axis>(props.initValue);
 
   return (
-    <input
-      type='range'
-      min={-1}
-      max={20}
-      value={cameraPosition.x}
-      onChange={e => {
-        const value = e.target.value;
-        const updatedPos = {
-          ...cameraPosition,
-          x: parseInt(value),
-        };
-        setCameraPosition(updatedPos);
+    <div className=''>
+      <span className='flex gap-x-1'>
+        <span>X: </span>
+        <input
+          type='range'
+          min={0}
+          max={Math.PI * 2}
+          value={cameraRotation.x}
+          onChange={e => {
+            const value = e.target.value;
+            const updatedPos = {
+              ...cameraRotation,
+              x: parseInt(value),
+            };
+            setCameraRotation(updatedPos);
 
-        props.onChange(updatedPos);
-      }}
-    />
+            props.onChange(updatedPos);
+          }}
+        />
+      </span>
+      <span className='flex gap-x-1'>
+        <span>Y: </span>
+        <input
+          type='range'
+          min={0}
+          max={Math.PI * 2}
+          value={cameraRotation.y}
+          onChange={e => {
+            const value = e.target.value;
+            const updatedPos = {
+              ...cameraRotation,
+              y: parseInt(value),
+            };
+            setCameraRotation(updatedPos);
+
+            props.onChange(updatedPos);
+          }}
+        />
+      </span>
+    </div>
+  );
+}
+
+function CameraPosition(props: {
+  initValue: Axis;
+  onChange: (value: Axis) => void;
+}): ReactElement {
+  const [cameraPosition, setCameraPosition] = useState<Axis>(props.initValue);
+
+  return (
+    <div>
+      <span className='flex gap-x-1'>
+        <span>X: </span>
+        <input
+          type='range'
+          min={-30}
+          max={30}
+          value={cameraPosition.x}
+          onChange={e => {
+            const value = e.target.value;
+            const updatedPos = {
+              ...cameraPosition,
+              x: parseInt(value),
+            };
+            setCameraPosition(updatedPos);
+
+            props.onChange(updatedPos);
+          }}
+        />
+      </span>
+      <span className='flex gap-x-1'>
+        <span>Y: </span>
+        <input
+          type='range'
+          min={-30}
+          max={30}
+          value={cameraPosition.y}
+          onChange={e => {
+            const value = e.target.value;
+            const updatedPos = {
+              ...cameraPosition,
+              y: parseInt(value),
+            };
+            setCameraPosition(updatedPos);
+
+            props.onChange(updatedPos);
+          }}
+        />
+      </span>
+    </div>
   );
 }

@@ -13,6 +13,7 @@ import { useSimulationContext } from './context/simulationContext';
 import KeyGeneration from './steps/keyGeneration';
 import Model from './Model';
 import PhotonDetection from './steps/photonDetection';
+import EmitPulse from './steps/emitPulse';
 
 function App() {
   const {
@@ -26,32 +27,8 @@ function App() {
   const emitFnRef = useRef<(pulse: Pulse) => void>(() => {});
   const simulationRef = useRef(new Simulation());
 
-  // const [alicePulseList, setAlicePulseList] = useState<Pulse[]>();
-  // const [bobPulseList, setBobPulseList] = useState<Pulse[]>();
-
-  const [showBobPhotonHitT, setShowBobPhotonHitT] = useState(false);
-  const [showAlicePhListOfGivenT, setShowAlicePhListOfGivenT] = useState(false);
-
-  const [showErrorSec, setShowErrorSec] = useState(false);
-
-  // const [aliceSampleBits, setAliceSampleBits] = useState<Pulse[]>();
-  // const [bobSampleBits, setBobSampleBits] = useState<Pulse[]>();
-
-  // function emit100Pulse() {
-  //   const aliceEmittedPulses = EmitRandom100();
-  //   setAliceEmittedPulses(aliceEmittedPulses);
-
-  //   const bobDetectedPulses = detectPulses(aliceEmittedPulses);
-  //   const bobDetectedPulsesInFullTimeSpan = new Array(
-  //     aliceEmittedPulses.length
-  //   ).fill(undefined);
-
-  //   bobDetectedPulses.forEach(pulse => {
-  //     bobDetectedPulsesInFullTimeSpan[pulse.quantumPart.time] = pulse;
-  //   });
-
-  //   setBobDetedPulses(bobDetectedPulsesInFullTimeSpan);
-  // }
+  const [pulseCount, setPulseCount] = useState(1000);
+  const [photonDetProb, setPhotonDetProb] = useState(5);
 
   function emitPulses(pulses: Pulse[]) {
     const aliceEmittedPulses = pulses;
@@ -67,6 +44,12 @@ function App() {
     });
 
     setBobDetedPulses(bobDetectedPulsesInFullTimeSpan);
+  }
+
+  function onPhotonProbChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const pulseProb = parseInt(e.target.value);
+    setPhotonDetProb(pulseProb);
+    simulationRef.current.setPhotonPerPulse(pulseProb);
   }
 
   return (
@@ -95,218 +78,51 @@ function App() {
           className='p-3 bg-blue-500 text-white rounded hover:bg-blue-600 transition shadow-md'>
           Emit Single pulse
         </button>
-        <button
-          onClick={() => {
-            const pulses = simulationRef.current.generatePulses();
-            emitPulses(pulses);
-          }}
-          className='p-3 bg-blue-500 text-white rounded hover:bg-blue-600 transition shadow-md'>
-          Emit 100 pulses
-        </button>
-        {/* <button
-          onClick={() => setShowBobPhotonHitT(!showBobPhotonHitT)}
-          className='p-3 bg-blue-500 text-white rounded hover:bg-blue-600 transition shadow-md'>
-          show bob detected photon T
-        </button> */}
-        {/* <button
-          onClick={() => checkForErrors()}
-          className='p-3 bg-blue-500 text-white rounded hover:bg-blue-600 transition shadow-md'>
-          Check Errors
-        </button> */}
-      </div>
 
-      {/* Photon Emitted list */}
-      <div className='flex justify-between flex-col bg-white'>
-        <div className='inline-block border border-black p-2 bg-white'>
-          <div
-            className='overflow-y-auto inline-flex'
-            style={{ width: '100%' }}>
-            <table className='table-fixed w-full border-collapse '>
-              {/* <thead></thead> */}
-              <tbody>
-                <tr className='sticky top-0 bg-white border-b border-gray-400 border-solid'>
-                  <th className='w-32'></th>
-                  <th className='w-40 p-2 border border-gray-300 border-solid'>
-                    Time
-                  </th>
-                  {aliceEmittedPulses?.length > 1 &&
-                    aliceEmittedPulses
-                      ?.slice(1)
-                      .map(pulse => (
-                        <td className='w-14 p-2 border text-center border-gray-300 border-solid'>
-                          {pulse.quantumPart.time}
-                        </td>
-                      ))}
-                </tr>
-                <tr>
-                  <th className='w-32 p-2 border border-gray-300 border-solid'>
-                    Alice
-                  </th>
-                  <th className='w-14 p-2 border border-gray-300 border-solid'>
-                    Phase Difference
-                  </th>
-                  {aliceEmittedPulses?.length > 1 ? (
-                    aliceEmittedPulses
-                      ?.slice(1)
-                      .map(pulse => (
-                        <td
-                          className={clsx(
-                            'w-14 p-2 border text-center font-semibold border-gray-300 border-solid',
-                            bobDetedPulses![pulse.quantumPart.time] &&
-                              'bg-green-100'
-                          )}>
-                          {pulse.quantumPart.phaseDifference === 0 ? '0' : 'π'}
-                        </td>
-                      ))
-                  ) : (
-                    <td></td>
-                  )}
-                </tr>
-                <tr>
-                  <th className='w-32 p-2 border border-gray-300 border-solid'>
-                    Bob
-                  </th>
-                  <th className='w-14 p-2 border border-gray-300 border-solid'>
-                    Phase Difference
-                  </th>
-                  {bobDetedPulses ? (
-                    bobDetedPulses
-                      ?.slice(1)
-                      .map(pulse => (
-                        <td
-                          className={clsx(
-                            'w-14 p-2 border text-center font-semibold border-gray-300 border-solid',
-                            pulse && 'bg-green-100'
-                          )}>
-                          {pulse &&
-                            (pulse.quantumPart.phaseDifference === 0
-                              ? '0'
-                              : 'π')}
-                        </td>
-                      ))
-                  ) : (
-                    <td></td>
-                  )}
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div className='p-2 border-t border-gray-200 flex gap-x-10'>
-            <span>
-              Pulse Emitted By Alice -{' '}
-              <span className='font-semibold'>
-                {aliceEmittedPulses?.length}
-              </span>
-            </span>
-            <span>
-              Pulse Detected By Bob -{' '}
-              <span className='font-semibold'>
-                {bobDetedPulses?.filter(bp => !!bp).length}
-              </span>
-            </span>
-          </div>
+        <div className='rounded shadow-md overflow-hidden'>
+          <select
+            className='p-3'
+            name='pulseCount'
+            value={pulseCount}
+            onChange={e => setPulseCount(parseInt(e.target.value))}>
+            <option value={100}>100 Pulses</option>
+            <option value={200}>200 Pulses</option>
+            <option value={400}>400 Pulses</option>
+            <option value={600}>600 Pulses</option>
+            <option value={1000}>1000 Pulses</option>
+          </select>
+          <button
+            onClick={() => {
+              const pulses = simulationRef.current.generatePulses(pulseCount);
+              emitPulses(pulses);
+            }}
+            className='p-3 bg-blue-500 text-white hover:bg-blue-600 transition'>
+            Emit
+          </button>
+        </div>
+
+        <div className='rounded shadow-md overflow-hidden bg-white flex gap-x-4 items-center p-2'>
+          <span className='font-semibold'>Photon Probability :</span>
+          <span className='flex gap-x-2 items-center'>
+            <span>1 /</span>
+            <input
+              type='number'
+              name='photonDetProb'
+              value={photonDetProb}
+              className='border border-gray-400 -m-px p-1 w-14 rounded text-center'
+              onChange={onPhotonProbChange}
+            />
+          </span>
         </div>
       </div>
-      {/* 
-      <div className='flex justify-between items-start'>
-        {showAlicePhListOfGivenT ? (
-          <div className='rounded shadow-md inline-block border border-gray-200 mt-5 bg-white'>
-            <h3 className='p-2 font-bold bg-gray-100 text-center'>
-              Alice PD At T shared by bob
-            </h3>
-            <div
-              className='overflow-y-auto inline-block  scrollbar scrollbar-thumb-gray-400 scrollbar-thin scrollbar-track-gray-50 scrollbar-thumb-rounded-md'
-              style={{ height: '50vh', width: '100%' }}>
-              <table className='table-fixed border-collapse'>
-                <thead>
-                  <tr className='sticky top-0 bg-white border-b border-gray-400 border-solid'>
-                    <th className='w-12 p-2 border border-gray-300 border-solid'>
-                      Time
-                    </th>
-                    <th className='w-36 p-2 border border-gray-300 border-solid'>
-                      Phase Difference
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {aliceEmittedPulses
-                    ?.filter(ap => !!bobDetedPulses![ap.quantumPart.time])
-                    .map(pulse => (
-                      <tr>
-                        <td className='p-2 border text-center border-gray-300 border-solid'>
-                          {pulse.quantumPart.time}
-                        </td>
-                        <td className='p-2 border text-center font-semibold border-gray-300 border-solid'>
-                          {pulse.quantumPart.phaseDifference}
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        ) : (
-          <div></div>
-        )}
 
-        {showBobPhotonHitT ? (
-          <div className='rounded shadow-md inline-block border border-gray-200 mt-5 bg-white'>
-            <h3 className='p-2 font-bold bg-gray-100 text-center'>
-              Pulse detected by bob
-            </h3>
-            <div
-              className='overflow-y-auto inline-block  scrollbar scrollbar-thumb-gray-400 scrollbar-thin scrollbar-track-gray-50 scrollbar-thumb-rounded-md'
-              style={{ height: '50vh' }}>
-              <table className='table-fixed border-collapse '>
-                <thead>
-                  <tr className='sticky top-0 bg-white border-b border-gray-400 border-solid'>
-                    <th className='w-12 p-2 border border-gray-300 border-solid'>
-                      Time
-                    </th>
-                    <th className='w-36 p-2 border border-gray-300 border-solid'>
-                      Phase Difference
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {bobDetedPulses
-                    ?.filter(bp => !!bp)
-                    .map(pulse => (
-                      <tr>
-                        <td className='p-2 border text-center border-gray-300 border-solid'>
-                          {pulse.quantumPart.time}
-                        </td>
-                        <td className='p-2 border text-center font-semibold border-gray-300 border-solid'>
-                          {pulse.quantumPart.phaseDifference}
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-            </div>
-            <div className='flex'>
-              <button
-                onClick={() => {
-                  setShowAlicePhListOfGivenT(!showAlicePhListOfGivenT);
-                  setShowErrorSec(true);
-                }}
-                className='p-3 bg-blue-500 text-white flex-grow m-3 rounded hover:bg-blue-600 transition shadow-md'>
-                share T with Alice
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div></div>
-        )}
-      </div> */}
+      <EmitPulse />
 
-      {bobDetedPulses &&
-        showSimSteps.photonsDetected.show &&
-        showSimSteps.photonsDetected.open && (
-          <div className='mt-3'>
-            <PhotonDetection />
-          </div>
-        )}
+      {showSimSteps.photonsDetected.show && showSimSteps.photonsDetected.open && (
+        <div className='mt-3'>
+          <PhotonDetection />
+        </div>
+      )}
 
       {showSimSteps.detectError.show && showSimSteps.detectError.open && (
         <div className='mt-3'>

@@ -60,8 +60,8 @@ export function SimulationContextProvider(
 
   const [showSimSteps, setShowSimSteps] = useState<SimulationStepsVisibility>({
     photonsDetected: {
-      open: true,
-      show: true,
+      open: false,
+      show: false,
     },
     detectError: {
       open: false,

@@ -26,13 +26,12 @@ export default function ErrorDetection({
     showSimSteps,
   } = useSimulationContext();
 
-  // const [aliceSampleBits, setAliceSampleBits] = useState<Pulse[]>();
-  // const [bobSampleBits, setBobSampleBits] = useState<Pulse[]>();
   const [aliceTPulses] = useState<Pulse[]>(bobPulseList.filter(bp => !!bp));
   const [areBitsSame, setAreBitsSame] = useState(false);
+  const [sampleBitPer, setSampleBitPer] = useState(20);
 
   function getAliceSampleBits() {
-    const aliceBits = getSampleBits(aliceTPulses);
+    const aliceBits = getSampleBits(aliceTPulses, sampleBitPer / 100);
     setAliceSamplePulses(aliceBits);
     setBobSharedSamplePulses(undefined);
     setAreBitsSame(undefined);
@@ -58,6 +57,21 @@ export default function ErrorDetection({
     <div className='border border-black p-2 bg-white'>
       <div className='flex items-baseline gap-x-3'>
         <h2 className='text-lg font-medium'>Error Detection</h2>
+        <div className='rounded shadow overflow-hidden bg-white flex gap-x-4 items-center p-1 mr-3'>
+          <span className='text-sm'>Sample Percentage :</span>
+          <span className='flex gap-x-2 items-center'>
+            <input
+              type='number'
+              name='photonDetProb'
+              value={sampleBitPer}
+              min={1}
+              max={100}
+              className='border border-gray-400 -m-px p-1 w-14 rounded text-center'
+              onChange={e => setSampleBitPer(parseInt(e.target.value))}
+            />
+            <span>%</span>
+          </span>
+        </div>
         <button
           disabled={aliceTPulses?.length < 10}
           onClick={() => getAliceSampleBits()}

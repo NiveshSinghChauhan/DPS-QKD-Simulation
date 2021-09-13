@@ -17,7 +17,7 @@ export default function PhotonDetection({}: Props): ReactElement {
         <h2 className='text-lg font-medium'>Photon Detection</h2>
         <button
           onClick={() => {
-            setShowAlicePhListOfGivenT(!showAlicePhListOfGivenT);
+            setShowAlicePhListOfGivenT(true);
             setShowSimSteps(
               objectPath.set(showSimSteps, 'detectError', {
                 show: true,
