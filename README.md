@@ -33,6 +33,11 @@ After fullfilling the prerequisites run this commmand to build destop applicatio
 Application will be compiled in the **_electron_dist_** folder
 
 
+### 3D Model
+
+3d Model is in the [public\qkdModel3d.fbx](public/qkdModel3d.fbx)
+Its is build in the [Maya](https://www.autodesk.com/products/maya) and exported as FBX file
+
 ### References
 - https://www.st-andrews.ac.uk/physics/quvis/simulations_html5/sims/BB84_photons/BB84_photons.html
 - https://www.ntt-review.jp/archive/ntttechnical.php?contents=ntr201109fa8.html
