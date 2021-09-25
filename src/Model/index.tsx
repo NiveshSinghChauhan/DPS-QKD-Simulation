@@ -107,7 +107,7 @@ export default function Model(props: Props): ReactElement {
     // But can load other files as well which is supported by 3d.js
     // https://threejs.org/docs/index.html#manual/en/introduction/Loading-3D-models
     loader.current.load(
-      'Final_files.fbx',
+      'qkdModel3d.fbx',
       function (gltf) {
         console.log(gltf);
 
