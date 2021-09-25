@@ -5,6 +5,7 @@ import * as objectPath from 'object-path-immutable';
 
 interface Props {}
 
+// This is only used to display the emitted pulses in a table
 export default function EmitPulse(props: Props): ReactElement {
   const { aliceEmittedPulses, bobDetedPulses, setShowSimSteps, showSimSteps } =
     useSimulationContext();
@@ -108,7 +109,7 @@ export default function EmitPulse(props: Props): ReactElement {
                       <td></td>
                     )}
                   </tr>
-                  <tr>
+                  {/* <tr>
                     <th className='w-32 p-2 border border-gray-300 border-solid'>
                       Bob
                     </th>
@@ -133,7 +134,7 @@ export default function EmitPulse(props: Props): ReactElement {
                     ) : (
                       <td></td>
                     )}
-                  </tr>{' '}
+                  </tr> */}
                 </>
               )}
             </tbody>

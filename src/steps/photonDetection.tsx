@@ -5,6 +5,10 @@ import * as objectPath from 'object-path-immutable';
 
 interface Props {}
 
+// This is only used to display the detected pulses in a table
+// As bobDetedPulses size is = to emitted pulses count
+// with undefined items where pulse is not detected
+// we filter the list to show only detected pulse items
 export default function PhotonDetection({}: Props): ReactElement {
   const [showAlicePhListOfGivenT, setShowAlicePhListOfGivenT] = useState(false);
 

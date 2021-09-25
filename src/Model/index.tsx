@@ -1,37 +1,26 @@
-import React, {
-  ReactElement,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { ReactElement, useEffect, useMemo, useRef, useState } from 'react';
 import {
   AmbientLight,
   AnimationAction,
-  AnimationClip,
   AnimationMixer,
-  BoxGeometry,
   Clock,
   DirectionalLight,
   LoopOnce,
   Mesh,
-  MeshBasicMaterial,
   MeshStandardMaterial,
-  Object3D,
   PerspectiveCamera,
-  RectAreaLight,
   Scene,
-  SpotLight,
   sRGBEncoding,
   WebGLRenderer,
 } from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
-import { RectAreaLightHelper } from 'three/examples/jsm/helpers/RectAreaLightHelper';
 import { GUI } from 'three/examples/jsm/libs/dat.gui.module';
-import { PhaseDiffDetector, PhaseDifference, Pulse } from 'src/sim/Pulse';
+import { Phase, PhaseDifference, Pulse } from 'src/sim/Pulse';
 
+interface ModelDetectors {
+  [PhaseDifference.PIE]: Mesh;
+  [PhaseDifference.ZERO]: Mesh;
+}
 interface Props {
   emit: (fn: (pulse: Pulse) => void) => void;
   onEmit?: (value: any) => void;
@@ -51,13 +40,10 @@ export default function Model(props: Props): ReactElement {
   const gltfModel = useRef<any>();
   const animationActions = useRef<AnimationAction[]>([]);
 
-  const detectors = useRef<{
-    [PhaseDifference.PIE]: Mesh;
-    [PhaseDifference.ZERO]: Mesh;
-  }>();
+  const detectors = useRef<ModelDetectors>();
   // const gui = useRef(new GUI());
 
-  const photon = useRef<Object3D>();
+  const photon = useRef<Mesh>();
 
   const resiveListner = (e: UIEvent): void => {
     // const canvas = renderer.current.domElement;
@@ -116,6 +102,10 @@ export default function Model(props: Props): ReactElement {
     light.position.set(150, 200, 30);
     scene.current.add(light);
 
+    // Loading the 3d Model here
+    // We are loading fbx file using FBXLoader
+    // But can load other files as well which is supported by 3d.js
+    // https://threejs.org/docs/index.html#manual/en/introduction/Loading-3D-models
     loader.current.load(
       'Final_files.fbx',
       function (gltf) {
@@ -123,21 +113,24 @@ export default function Model(props: Props): ReactElement {
 
         gltfModel.current = gltf;
         const model = gltf;
-        // model.children[2].visible = false;
+
+        // Getting the animation from the model object
         const fileAnimations = gltf.animations;
         // // model.rotation.set(0, 4.5, 0);
         // scene.current.rotation.set(0.2, 4.7, 0);
 
         const led1 = model.getObjectByName('led1') as Mesh;
         const led2 = model.getObjectByName('led2') as Mesh;
-
         led1.material = (led1.material as MeshStandardMaterial).clone();
         led2.material = (led1.material as MeshStandardMaterial).clone();
 
+        // Saving the detector led reference in detectors ref object
         detectors.current = {
           [PhaseDifference.PIE]: led1,
           [PhaseDifference.ZERO]: led2,
         };
+
+        photon.current = model.getObjectByName('ball1') as Mesh;
 
         resetDetectorColor();
         // (led1.material as MeshStandardMaterial).color.setHex(0xfdd531);
@@ -152,7 +145,6 @@ export default function Model(props: Props): ReactElement {
           // action.paused = true;
         });
 
-        photon.current = model.children[40];
         scene.current.add(model);
       },
       undefined,
@@ -177,23 +169,43 @@ export default function Model(props: Props): ReactElement {
   }
 
   function resetDetectorColor() {
+    // Reseting the photon ball color to default blue color
+    (photon.current.material as MeshStandardMaterial).color.setRGB(
+      0.03600001388788243,
+      0.1241529006384745,
+      0.800000011920929
+    );
+
+    // Reseting the detector color to yellow
     Object.values(detectors.current).forEach(detector => {
       (detector.material as MeshStandardMaterial).color.setStyle('yellow');
     });
   }
 
   function emit(pulse: Pulse) {
+    // Reseting the previously set color of the detector color
     resetDetectorColor();
 
+    // Playing the animation of the modal
     animationActions.current.forEach(action => {
       action.reset();
       action.play();
     });
 
+    // Changing color of the photon ball after passing through the phase modulator
+    // red color is the phase is PIE and green otherwise
+    setTimeout(() => {
+      (photon.current.material as MeshStandardMaterial).color.setStyle(
+        pulse.quantumPart.phase === Phase.PIE ? 'red' : 'green'
+      );
+    }, 720);
+
+    // Removing the finished listner after finishing the animation
     (mixer.current as any)._listeners?.finished.forEach(listnerFn => {
       mixer.current.removeEventListener('finished', listnerFn);
     });
 
+    // Adding listner to call a method after finishing the animation
     mixer.current.addEventListener('finished', onEmitAnimationEnd(pulse));
 
     mixer.current.update(clock.current.getDelta());
@@ -204,9 +216,11 @@ export default function Model(props: Props): ReactElement {
     console.log(
       activeDetector?.name,
       pulse?.quantumPart.phaseDifference,
-      pulse?.quantumPart.isPhotonExist
+      pulse?.quantumPart.isPhotonExist,
+      photon.current
     );
 
+    // Changing the color of the detector based on the pulse phase difference property
     if (
       pulse.quantumPart.phaseDifference !== undefined &&
       pulse.quantumPart.isPhotonExist
