@@ -21,7 +21,6 @@ The application will run on [http://localhost:3000](http://localhost:3000).
 The page will reload if you make edits.
 You will also see any lint errors in the console.
 
-
 ## How to build Desktop Application
 
 ### Prerequisites
@@ -32,17 +31,27 @@ After fullfilling the prerequisites run this commmand to build destop applicatio
 
 Application will be compiled in the **_electron_dist_** folder
 
-
-### 3D Model
+## 3D Model
 
 3d Model is in the [public\qkdModel3d.fbx](public/qkdModel3d.fbx)
 Its is build in the [Maya](https://www.autodesk.com/products/maya) and exported as FBX file
 
-### References
+## How Simulation Works
+
+[SIMULATION_WOKRING.md](SIMULATION_WORKING.md)
+
+## References
+
 - https://www.st-andrews.ac.uk/physics/quvis/simulations_html5/sims/BB84_photons/BB84_photons.html
 - https://www.ntt-review.jp/archive/ntttechnical.php?contents=ntr201109fa8.html
 - https://www.youtube.com/watch?v=rwJGbOiZeCo
 - https://www.st-andrews.ac.uk/physics/quvis/simulations_html5/sims/Mach_Zehnder_PhaseShifter/Mach_Zehnder_PhaseShifter.html
-### Author
+
+## Author
+
 - Nivesh Singh Chauhan
 - Rahul Choudahry
+
+## Github
+
+https://github.com/NiveshSinghChauhan/DPS-QKD-Simulation
