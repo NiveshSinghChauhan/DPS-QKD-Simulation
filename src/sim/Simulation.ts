@@ -76,24 +76,38 @@ export function compareBits(a: number[], b: number[]) {
 // which stores all the data to run the simulation
 // This together with the smiulation context is used to run the simulation application
 export class Simulation {
+
+  // Intialized the simulation prams
   private photonPerPulse = 5;
   private pulseCount = 1000;
 
+  // Created the instance of PhaseDiffDetector, RandomPhotonGenerator class
   private phaseDiffDetector = new PhaseDiffDetector();
   private photonGenerator = new RandomPhotonGenerator(this.photonPerPulse);
 
+  // Generates the pulses of length given as pulseCount
+  // pulseCount is number of pulse to generate
   generatePulses(pulseCount = this.pulseCount) {
     this.reset();
     const pulseList: Pulse[] = [];
 
     for (let i = 0; i < pulseCount; i++) {
+
+      // get random phase using randomPhase method
       const phase = randomPhase();
+
+      // provide this random phase to phaseDiffDetector to detect the phase difference
       const phase_diff = this.phaseDiffDetector.detect(phase);
+
+      // using the photonGenerator get the photon existence flag
+      // generate method returns true if photon exist else false
       const photon = this.photonGenerator.generate();
 
       const pulse = new Pulse(
         new QuantumPart(phase, phase_diff, photon, i),
+        // Time T of the pulse
         i,
+        // checking if the pulse is last or not
         i === pulseCount - 1
       );
 
@@ -103,6 +117,8 @@ export class Simulation {
     return pulseList;
   }
 
+  // Generate single pulse for the given time T
+  // eg. time = 5, pulse will generated of time T = 5
   generateSinglePulse(time: number) {
     const phase = randomPhase();
     const phase_diff = this.phaseDiffDetector.detect(phase);
@@ -117,15 +133,19 @@ export class Simulation {
     return pulse;
   }
 
+  // Updates the photonPerPulse simulation parameter
+  // and reinitialize the RandomPhotonGenerator class with new photonPerPulse value
   setPhotonPerPulse(photonNum: number) {
     this.photonPerPulse = photonNum;
     this.photonGenerator = new RandomPhotonGenerator(photonNum);
   }
 
+  // Update the pulseCount simulation parameter
   setPulseCount(count: number) {
     this.pulseCount = count;
   }
 
+  // reset the the phaseDiffDetector, photonGenerator 
   private reset() {
     this.phaseDiffDetector.reset();
     this.photonGenerator.reset();
